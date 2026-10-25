@@ -41,6 +41,49 @@ public class Server {
             for (int i = 0; i < 81; i++)
                 if (i / 9 == r || i % 9 == c || (i / 9 / 3 == r / 3 && i % 9 / 3 == c / 3)) n[i] &= ~(1 << v);
         }
+        // ---------- Hinweis-System: erklaert Techniken, verraet nie die Zahl ----------
+        static int[] unit(int u) {
+            int[] r = new int[9];
+            for (int k = 0; k < 9; k++)
+                r[k] = u < 9 ? u * 9 + k : u < 18 ? k * 9 + (u - 9)
+                     : (u - 18) / 3 * 27 + (u - 18) % 3 * 3 + k / 3 * 9 + k % 3;
+            return r;
+        }
+        static String unitName(int u) {
+            return u < 9 ? "Zeile " + (u + 1) : u < 18 ? "Spalte " + (u - 8) : "Block " + (u - 17);
+        }
+        static String hintOut(int level, int[] area, String areaName, int cell, String tech, String explain, String last) {
+            int[] cs = level >= 3 ? new int[]{cell} : area;
+            String text = level == 1 ? "Schau dir " + areaName + " genauer an."
+                        : level == 2 ? tech + ": " + explain : last;
+            return "{\"level\":" + level + ",\"cells\":" + Arrays.toString(cs) + ",\"text\":\"" + text + "\"}";
+        }
+        String hint(int level) {
+            level = Math.max(1, Math.min(3, level));
+            int[] b = new int[81];
+            for (int i = 0; i < 81; i++) b[i] = grid[i] - '0';
+            // 1) Nackter Einzelner: Zelle hat nur noch einen Kandidaten
+            for (int i = 0; i < 81; i++) if (b[i] == 0 && Integer.bitCount(mask(b, i)) == 1)
+                return hintOut(level, unit(i / 9), unitName(i / 9), i, "Nackter Einzelner",
+                    "Eine Zelle hat nur noch eine mögliche Ziffer, weil alle anderen in Zeile, Spalte oder Block schon vorkommen.",
+                    "Diese Zelle: Streiche die Ziffern aus Zeile, Spalte und Block durch – es bleibt genau eine übrig.");
+            // 2) Versteckter Einzelner: Ziffer passt in Zeile/Spalte/Block nur an eine Stelle
+            for (int u = 0; u < 27; u++) {
+                int[] cs = unit(u);
+                for (int v = 1; v <= 9; v++) {
+                    int cnt = 0, at = -1; boolean has = false;
+                    for (int c : cs) {
+                        if (b[c] == v) has = true;
+                        else if (b[c] == 0 && (mask(b, c) >> v & 1) != 0) { cnt++; at = c; }
+                    }
+                    if (!has && cnt == 1)
+                        return hintOut(level, cs, unitName(u), at, "Versteckter Einzelner",
+                            "Eine fehlende Ziffer passt in diesem Bereich nur an eine einzige Stelle. Prüfe, welche Ziffer das ist.",
+                            "In dieser Zelle muss eine Ziffer stehen, die sonst nirgends in " + unitName(u) + " hinpasst.");
+                }
+            }
+            return "{\"level\":" + level + ",\"cells\":[],\"text\":\"Mit einfachen Techniken geht gerade nichts. Trage mit Notizen alle Kandidaten ein und suche nach Paaren, die sich gegenseitig ausschließen.\"}";
+        }
         String json(String pid, boolean wrong) {
             long now = System.currentTimeMillis();
             StringBuilder s = new StringBuilder("{");
@@ -203,6 +246,10 @@ public class Server {
                         me.sel = Integer.parseInt(q.getOrDefault("sel", "-1"));
                     }
                     String action = parts.length == 5 ? parts[4] : "";
+                    if (action.equals("hint")) {
+                        json(ex, 200, r.hint(Integer.parseInt(q.getOrDefault("level", "1"))));
+                        return;
+                    }
                     boolean wrong = false;
                     if (me != null && ex.getRequestMethod().equals("POST") && !action.isEmpty()) {
                         int cell = Integer.parseInt(q.getOrDefault("cell", "-1")), val = Integer.parseInt(q.getOrDefault("val", "0"));
