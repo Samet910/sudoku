@@ -226,7 +226,11 @@ public class Server {
                             case "erase" -> {
                                 for (int c : cells(q, cell)) if (r.grid[c] == '0') r.notesFor(pid)[c] = 0;
                             }
-                            case "restart" -> r.reset();
+                            case "restart" -> {
+                                String nd = q.get("diff");
+                                if (nd != null && CLUES.containsKey(nd)) r.diff = nd;
+                                r.reset();
+                            }
                             default -> { }
                         }
                     }
