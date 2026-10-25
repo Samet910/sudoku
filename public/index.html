@@ -43,6 +43,10 @@ button.on{background:var(--sel);border-color:#4a7be0}
 #pad button small{position:absolute;top:4px;right:8px;font-size:.4em;color:var(--dim)}
 #pad button:disabled{opacity:.25;cursor:default}
 .win{grid-column:1/-1;text-align:center;font-size:1.4em;font-weight:700;color:#7db8ff;padding:8px}
+.c.hint{background:#4a3f10}
+#tools{gap:6px}
+#tools button{padding:10px 8px;flex:1;white-space:nowrap}
+#hintbox{background:var(--card);border-radius:10px;padding:10px;font-size:.9em;color:#f2d04a}
 </style></head><body>
 <div id="menu">
   <h1>Co-op Sudoku</h1>
@@ -71,7 +75,9 @@ button.on{background:var(--sel);border-color:#4a7be0}
     <div id="tools">
       <button id="bn" onclick="toggleNotes()" title="Notizen (N)">✏️ Notizen</button>
       <button onclick="erase()" title="Notizen löschen (Entf)">⌫ Löschen</button>
+      <button onclick="getHint()" title="Hinweis">💡 Hinweis</button>
     </div>
+    <div id="hintbox" hidden></div>
     <div id="pad"></div>
   </div>
   <div id="msg" class="win"></div>
@@ -99,6 +105,12 @@ function box(i,j){return Math.floor(i/9/3)==Math.floor(j/9/3)&&Math.floor(i%9/3)
 const PEERS=[];
 for(let i=0;i<81;i++){PEERS[i]=[];for(let j=0;j<81;j++)if(j!=i&&(Math.floor(i/9)==Math.floor(j/9)||i%9==j%9||box(i,j)))PEERS[i].push(j)}
 let sels=new Set(),dragging=false,actSeq=0,pending=0,showNew=false;
+let hint=null,hintLvl=0;
+async function getHint(){
+  if(!st||st.won)return;
+  hintLvl=Math.min(hintLvl+1,3);
+  try{const r=await fetch(url("/hint?level="+hintLvl));hint=await r.json();draw()}catch(e){}
+}
 function url(path){return `/api/room/${room}${path}${path.includes("?")?"&":"?"}p=${pid}&name=${encodeURIComponent(localStorage.name||"")}&sel=${sel}`}
 async function call(path,method){
   const act=method=="POST",my=act?++actSeq:actSeq,startSeq=actSeq;
@@ -123,6 +135,7 @@ function draw(){
     if(sels.has(i))cls+=" sel";
     else if(v!="0"&&v==sv)cls+=" same";
     else if(sel>=0&&PEERS[sel].includes(i))cls+=" hl";
+    if(hint&&hint.cells.includes(i)&&!sels.has(i))cls+=" hint";
     let style="";
     const oc=others.find(p=>p.sel==i);
     if(oc)style+=`box-shadow:inset 0 0 0 3px ${COL[oc.s%8]};`;
@@ -150,6 +163,7 @@ function draw(){
   $("newbox").hidden=!(showNew||st.won);
   $("newdiffs").innerHTML=Object.keys(D).map(k=>`<button class="${k==st.diff?"on":""}" onclick="restart('${k}')">${D[k]}</button>`).join("");
   $("bn").classList.toggle("on",notesMode);
+  $("hintbox").hidden=!hint;if(hint)$("hintbox").textContent=hint.text;
   $("msg").textContent=st.won?"🎉 Geschafft! Ihr habt es zusammen gelöst.":"";
 }
 // ----- Auswahl: Klick, Strg/Shift+Klick, Ziehen -----
@@ -173,6 +187,7 @@ function targets(){return [...sels].filter(i=>st.puzzle[i]=="0"&&st.grid[i]=="0"
 async function put(n){
   if(!st||st.won)return;
   const t=targets();if(!t.length)return;
+  hint=null;hintLvl=0;
   if(notesMode){
     const on=!t.every(i=>st.notes[i]>>n&1);
     t.forEach(i=>{st.notes[i]=on?st.notes[i]|(1<<n):st.notes[i]&~(1<<n)});
@@ -200,7 +215,7 @@ async function erase(){
 function toggleNew(){showNew=!showNew;draw()}
 async function restart(d){
   if(!st.won&&!confirm("Aktuelles Rätsel abbrechen und mit "+D[d]+" neu starten?"))return;
-  showNew=false;sels=new Set();sel=-1;
+  showNew=false;sels=new Set();sel=-1;hint=null;hintLvl=0;
   await call(`/restart?diff=${d}`,"POST");
 }
 function copyLink(){navigator.clipboard.writeText(location.href);$("cp").textContent="Kopiert ✓";setTimeout(()=>$("cp").textContent="Kopieren",1500)}
