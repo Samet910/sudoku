@@ -1,46 +1,47 @@
 <!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Co-op Sudoku</title>
-  <style>
-    :root{--bg:#0b0b0c;--card:#16181c;--line:#3a3d44;--fg:#f2f2f2;--dim:#9aa0aa;--acc:#1673c9;--hl:#1b2638;--sel:#1e3a8a;--same:#23305a}
-    *{box-sizing:border-box}
-    [hidden]{display:none!important}
-    body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif}
-    button,input,select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer}
-    button:hover{border-color:var(--acc)}
-    button.pri{background:var(--acc);border:0;font-weight:700;width:100%;padding:14px}
-    button.on{background:var(--sel);border-color:#4a7be0}
-    #menu{max-width:440px;margin:40px auto;padding:0 16px;text-align:center}
-    #menu>*{margin:8px 0}
-    #diffs button{margin:3px}
-    #game{max-width:900px;margin:0 auto;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}
-    @media(max-width:760px){#game{grid-template-columns:1fr}}
-    #top{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.95em}
-    .badge{padding:3px 10px;border-radius:99px;font-weight:700;font-size:.8em;background:#7db8ff;color:#05213f}
-    .badge.o{background:none;border:1px solid #4a90e2;color:#4a90e2}
-    #board{display:grid;grid-template-columns:repeat(9,1fr);aspect-ratio:1;border:3px solid #ddd;background:#000}
-    .c{border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;user-select:none;font-size:clamp(20px,5.5vw,38px)}
-    .c.r{border-right:3px solid #ddd}.c.b{border-bottom:3px solid #ddd}
-    .c.hl{background:var(--hl)}.c.same{background:var(--same)}.c.sel{background:var(--sel)}
-    .c.g{color:#fff;font-weight:600}
-    .c .bad{color:#ff5252;animation:f .7s forwards}
-    @keyframes f{to{opacity:0}}
-    .n{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);font-size:clamp(8px,1.9vw,13px);color:var(--dim);text-align:center}
-    .n i{font-style:normal;display:flex;align-items:center;justify-content:center}
-    .n i.m{color:#fff;font-weight:700}
-    #side{display:flex;flex-direction:column;gap:12px}
-    #players{background:var(--card);border-radius:10px;padding:12px;min-height:90px}
-    .pl{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.9em}
-    .dot{width:12px;height:12px;border-radius:50%;flex:none}
-    .bar{flex:1;height:5px;background:#333;border-radius:3px;overflow:hidden}.bar b{display:block;height:100%}
-    #tools{display:flex;gap:8px;justify-content:center}
-    #pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    #pad button{position:relative;font-size:2em;padding:14px 0;background:#111}
-    #pad button small{position:absolute;top:4px;right:8px;font-size:.4em;color:var(--dim)}
-    #pad button:disabled{opacity:.25;cursor:default}
-    .win{grid-column:1/-1;text-align:center;font-size:1.4em;font-weight:700;color:#7db8ff;padding:8px}
-  </style></head><body>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Co-op Sudoku</title>
+<style>
+:root{--bg:#0b0b0c;--card:#16181c;--line:#3a3d44;--fg:#f2f2f2;--dim:#9aa0aa;--acc:#1673c9;--hl:#1b2638;--sel:#1e3a8a;--same:#23305a}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif}
+button,input,select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);border:0;font-weight:700;width:100%;padding:14px}
+button.on{background:var(--sel);border-color:#4a7be0}
+#menu{max-width:440px;margin:40px auto;padding:0 16px;text-align:center}
+#menu>*{margin:8px 0}
+#diffs button{margin:3px}
+#game{max-width:900px;margin:0 auto;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}
+@media(max-width:760px){#game{grid-template-columns:1fr}}
+#top{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.95em}
+.badge{padding:3px 10px;border-radius:99px;font-weight:700;font-size:.8em;background:#7db8ff;color:#05213f}
+.badge.o{background:none;border:1px solid #4a90e2;color:#4a90e2}
+#board{touch-action:none;display:grid;grid-template-columns:repeat(9,1fr);aspect-ratio:1;border:3px solid #ddd;background:#000}
+.c{border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;user-select:none;font-size:clamp(20px,5.5vw,38px)}
+.c.r{border-right:3px solid #ddd}.c.b{border-bottom:3px solid #ddd}
+.c.hl{background:var(--hl)}.c.same{background:var(--same)}.c.sel{background:var(--sel)}
+.c.g{color:#fff;font-weight:600}
+.c .bad{color:#ff5252;animation:f .7s forwards}
+@keyframes f{to{opacity:0}}
+.n{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);font-size:clamp(8px,1.9vw,13px);color:var(--dim);text-align:center}
+.n i{font-style:normal;display:flex;align-items:center;justify-content:center}
+.n i.m{color:#fff;font-weight:700}
+.n i.x{color:#ff5252;font-weight:700}
+#side{display:flex;flex-direction:column;gap:12px}
+#players{background:var(--card);border-radius:10px;padding:12px;min-height:90px}
+.pl{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.9em}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.bar{flex:1;height:5px;background:#333;border-radius:3px;overflow:hidden}.bar b{display:block;height:100%}
+#tools{display:flex;gap:8px;justify-content:center}
+#pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#pad button{position:relative;font-size:2em;padding:14px 0;background:#111}
+#pad button small{position:absolute;top:4px;right:8px;font-size:.4em;color:var(--dim)}
+#pad button:disabled{opacity:.25;cursor:default}
+.win{grid-column:1/-1;text-align:center;font-size:1.4em;font-weight:700;color:#7db8ff;padding:8px}
+</style></head><body>
 <div id="menu">
   <h1>Co-op Sudoku</h1>
   <input id="name" placeholder="Dein Name" maxlength="16">
@@ -73,92 +74,144 @@
   <div id="msg" class="win"></div>
 </div>
 <script>
-  const D={easy:"Einfach",medium:"Mittel",advanced:"Fortgeschritten",hard:"Schwer",expert:"Experte"};
-  const COL=["#4aa3ff","#f2a33a","#5fd37a","#e86bd2","#b88cff","#ff6b6b","#4ad8d0","#d8d84a"];
-  const $=id=>document.getElementById(id);
-  const pid=localStorage.pid||(localStorage.pid=Math.random().toString(36).slice(2,12));
-  $("name").value=localStorage.name||"";
-  let st=null,sel=-1,notesMode=false,flash=null,recv=0,busy=false;
-  const room=new URLSearchParams(location.search).get("room");
-  $("diffs").innerHTML=Object.keys(D).map(k=>`<button onclick="start('${k}')">${D[k]}</button>`).join("");
-  $("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button id="p${n}" onclick="put(${n})">${n}<small></small></button>`).join("");
-  function myName(){const n=$("name").value.trim();if(n)localStorage.name=n;return localStorage.name||""}
-  async function start(d){myName();const notes=$("notes").value;$("menu").innerHTML="<p>Sudoku wird generiert…</p>";
-    try{
-      const r=await Promise.race([fetch(`/api/new?diff=${d}&notes=${notes}`),
-        new Promise((_,no)=>setTimeout(()=>no(new Error("Zeitüberschreitung: Der Server antwortet nicht")),25000))]);
-      const j=await r.json();if(!j.id)throw new Error(j.error||"Serverfehler "+r.status);
-      location.search="?room="+j.id;
-    }catch(e){$("menu").innerHTML='<p>Fehler: '+e.message+'</p><p style="color:var(--dim);font-size:.9em">Öffne die Seite über den laufenden Java-Server (z. B. http://localhost:8080), nicht als Datei oder Vorschau.</p><button onclick="location.href=location.pathname">Zurück</button>'}}
+const D={easy:"Einfach",medium:"Mittel",advanced:"Fortgeschritten",hard:"Schwer",expert:"Experte"};
+const COL=["#4aa3ff","#f2a33a","#5fd37a","#e86bd2","#b88cff","#ff6b6b","#4ad8d0","#d8d84a"];
+const $=id=>document.getElementById(id);
+const pid=localStorage.pid||(localStorage.pid=Math.random().toString(36).slice(2,12));
+$("name").value=localStorage.name||"";
+let st=null,sel=-1,notesMode=false,flash=null,recv=0,busy=false;
+const room=new URLSearchParams(location.search).get("room");
+$("diffs").innerHTML=Object.keys(D).map(k=>`<button onclick="start('${k}')">${D[k]}</button>`).join("");
+$("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button id="p${n}" onclick="put(${n})">${n}<small></small></button>`).join("");
+function myName(){const n=$("name").value.trim();if(n)localStorage.name=n;return localStorage.name||""}
+async function start(d){myName();const notes=$("notes").value;$("menu").innerHTML="<p>Sudoku wird generiert…</p>";
+  try{
+    const r=await Promise.race([fetch(`/api/new?diff=${d}&notes=${notes}`),
+      new Promise((_,no)=>setTimeout(()=>no(new Error("Zeitüberschreitung: Der Server antwortet nicht")),25000))]);
+    const j=await r.json();if(!j.id)throw new Error(j.error||"Serverfehler "+r.status);
+    location.search="?room="+j.id;
+  }catch(e){$("menu").innerHTML='<p>Fehler: '+e.message+'</p><p style="color:var(--dim);font-size:.9em">Öffne die Seite über den laufenden Java-Server (z. B. http://localhost:8080), nicht als Datei oder Vorschau.</p><button onclick="location.href=location.pathname">Zurück</button>'}}
   function join(){const c=$("code").value.trim();if(c){myName();location.search="?room="+c}}
-  function url(path){return `/api/room/${room}${path}${path.includes("?")?"&":"?"}p=${pid}&name=${encodeURIComponent(localStorage.name||"")}&sel=${sel}`}
-  async function call(path,method){
+function box(i,j){return Math.floor(i/9/3)==Math.floor(j/9/3)&&Math.floor(i%9/3)==Math.floor(j%9/3)}
+const PEERS=[];
+for(let i=0;i<81;i++){PEERS[i]=[];for(let j=0;j<81;j++)if(j!=i&&(Math.floor(i/9)==Math.floor(j/9)||i%9==j%9||box(i,j)))PEERS[i].push(j)}
+let sels=new Set(),dragging=false,actSeq=0,pending=0;
+function url(path){return `/api/room/${room}${path}${path.includes("?")?"&":"?"}p=${pid}&name=${encodeURIComponent(localStorage.name||"")}&sel=${sel}`}
+async function call(path,method){
+  const act=method=="POST",my=act?++actSeq:actSeq,startSeq=actSeq;
+  if(act)pending++;
+  try{
     const r=await fetch(url(path),{method:method||"GET"});
     if(r.status==404){document.body.innerHTML='<div id="menu"><p>Raum nicht gefunden (evtl. abgelaufen).</p><button onclick="location.href=location.pathname">Zurück</button></div>';throw 0}
-    st=await r.json();recv=Date.now();draw();
+    const j=await r.json();
+    // veraltete Antworten ignorieren, damit nichts zurückspringt
+    if(act?my===actSeq:(pending===0&&startSeq===actSeq)){st=j;recv=Date.now();draw()}
+    return j;
+  }finally{if(act)pending--}
+}
+function draw(){
+  if(!st)return;
+  const sv=sel>=0?st.grid[sel]:"0";
+  const others=st.players.filter(p=>p.s!=st.me&&p.sel>=0);
+  let h="";
+  for(let i=0;i<81;i++){
+    const v=st.grid[i],given=st.puzzle[i]!="0";
+    let cls="c"+(given?" g":"")+(i%9%3==2&&i%9<8?" r":"")+(Math.floor(i/9)%3==2&&i<72?" b":"");
+    if(sels.has(i))cls+=" sel";
+    else if(v!="0"&&v==sv)cls+=" same";
+    else if(sel>=0&&PEERS[sel].includes(i))cls+=" hl";
+    let style="";
+    const oc=others.find(p=>p.sel==i);
+    if(oc)style+=`box-shadow:inset 0 0 0 3px ${COL[oc.s%8]};`;
+    if(!given&&v!="0")style+=`color:${COL[st.owner[i]%8]};`;
+    let inner="";
+    if(v!="0")inner=v;
+    else if(flash&&flash.cell==i&&Date.now()<flash.until)inner=`<span class="bad">${flash.val}</span>`;
+    else if(st.notes[i])inner='<div class="n">'+[1,2,3,4,5,6,7,8,9].map(d=>{
+      if(!(st.notes[i]>>d&1))return"<i></i>";
+      const bad=PEERS[i].some(j=>st.grid[j]==d);   // Zahl steht schon in Zeile/Spalte/Block -> unmöglich
+      return `<i class="${bad?"x":d==sv?"m":""}">${d}</i>`}).join("")+"</div>";
+    h+=`<div class="${cls}" style="${style}" data-i="${i}">${inner}</div>`;
   }
-  function box(i,j){return Math.floor(i/9/3)==Math.floor(j/9/3)&&Math.floor(i%9/3)==Math.floor(j%9/3)}
-  function draw(){
-    if(!st)return;
-    const sv=sel>=0?st.grid[sel]:"0";
-    const others=st.players.filter(p=>p.s!=st.me&&p.sel>=0);
-    let h="";
-    for(let i=0;i<81;i++){
-      const v=st.grid[i],given=st.puzzle[i]!="0";
-      let cls="c"+(given?" g":"")+(i%9%3==2&&i%9<8?" r":"")+(Math.floor(i/9)%3==2&&i<72?" b":"");
-      if(i==sel)cls+=" sel";
-      else if(v!="0"&&v==sv)cls+=" same";
-      else if(sel>=0&&(Math.floor(i/9)==Math.floor(sel/9)||i%9==sel%9||box(i,sel)))cls+=" hl";
-      let style="";
-      const oc=others.find(p=>p.sel==i);
-      if(oc)style+=`box-shadow:inset 0 0 0 3px ${COL[oc.s%8]};`;
-      if(!given&&v!="0")style+=`color:${COL[st.owner[i]%8]};`;
-      let inner="";
-      if(v!="0")inner=v;
-      else if(flash&&flash.cell==i&&Date.now()<flash.until)inner=`<span class="bad">${flash.val}</span>`;
-      else if(st.notes[i])inner='<div class="n">'+[1,2,3,4,5,6,7,8,9].map(d=>`<i class="${d==sv?"m":""}">${st.notes[i]>>d&1?d:""}</i>`).join("")+"</div>";
-      h+=`<div class="${cls}" style="${style}" onclick="pick(${i})">${inner}</div>`;
+  $("board").innerHTML=h;
+  $("dl").textContent=D[st.diff];
+  $("nl").textContent="Notizen: "+(st.shared?"gemeinsam":"privat");
+  $("err").textContent="Fehler: "+st.mistakes;
+  $("players").innerHTML='<div style="color:var(--dim);font-size:.75em;display:flex;justify-content:space-between"><span>SPIELER</span><span>FORTSCHRITT</span></div>'+
+    st.players.map(p=>`<div class="pl"><span class="dot" style="background:${COL[p.s%8]}"></span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis">${p.n}${p.s==st.me?" (du)":""}</span><span class="bar"><b style="width:${100*p.c/st.total}%;background:${COL[p.s%8]}"></b></span><span style="font-size:.85em"><b>${p.c}</b>/${st.total}</span></div>`).join("");
+  for(let n=1;n<=9;n++){
+    const left=9-[...st.grid].filter(c=>c==n).length;
+    $("p"+n).disabled=left<=0||st.won;
+    $("p"+n).querySelector("small").textContent=left>0?left:"";
+  }
+  $("bn").classList.toggle("on",notesMode);
+  $("msg").textContent=st.won?"🎉 Geschafft! Ihr habt es zusammen gelöst.":"";
+}
+// ----- Auswahl: Klick, Strg/Shift+Klick, Ziehen -----
+function cellAt(e){const el=document.elementFromPoint(e.clientX,e.clientY),c=el&&el.closest?el.closest(".c"):null;return c?+c.dataset.i:-1}
+$("board").addEventListener("pointerdown",e=>{
+  const i=cellAt(e);if(i<0)return;e.preventDefault();dragging=true;
+  if(e.ctrlKey||e.metaKey||e.shiftKey){
+    if(sels.has(i)&&sels.size>1){sels.delete(i);sel=[...sels].pop()}else{sels.add(i);sel=i}
+  }else{sels=new Set([i]);sel=i}
+  draw();
+});
+$("board").addEventListener("pointermove",e=>{
+  if(!dragging)return;const i=cellAt(e);
+  if(i>=0&&!sels.has(i)){sels.add(i);sel=i;draw()}
+});
+addEventListener("pointerup",()=>dragging=false);
+addEventListener("pointercancel",()=>dragging=false);
+function toggleNotes(){notesMode=!notesMode;draw()}
+function targets(){return [...sels].filter(i=>st.puzzle[i]=="0"&&st.grid[i]=="0")}
+// ----- Eingabe: sofort lokal anzeigen, Server im Hintergrund -----
+async function put(n){
+  if(!st||st.won)return;
+  const t=targets();if(!t.length)return;
+  if(notesMode){
+    const on=!t.every(i=>st.notes[i]>>n&1);
+    t.forEach(i=>{st.notes[i]=on?st.notes[i]|(1<<n):st.notes[i]&~(1<<n)});
+    draw();
+    await call(`/note?cells=${t.join(",")}&val=${n}&on=${on?1:0}`,"POST");
+  }else{
+    const cell=t.includes(sel)?sel:t[0];
+    const flashIt=()=>{flash={cell,val:n,until:Date.now()+700};draw();setTimeout(draw,750)};
+    if(PEERS[cell].some(j=>st.grid[j]==n)){   // steht schon in Zeile/Spalte/Block: sicher falsch
+      st.mistakes++;flashIt();
+      await call(`/move?cell=${cell}&val=${n}`,"POST");return;
     }
-    $("board").innerHTML=h;
-    $("dl").textContent=D[st.diff];
-    $("nl").textContent="Notizen: "+(st.shared?"gemeinsam":"privat");
-    $("err").textContent="Fehler: "+st.mistakes;
-    $("players").innerHTML='<div style="color:var(--dim);font-size:.75em;display:flex;justify-content:space-between"><span>SPIELER</span><span>FORTSCHRITT</span></div>'+
-            st.players.map(p=>`<div class="pl"><span class="dot" style="background:${COL[p.s%8]}"></span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis">${p.n}${p.s==st.me?" (du)":""}</span><span class="bar"><b style="width:${100*p.c/st.total}%;background:${COL[p.s%8]}"></b></span><span style="font-size:.85em"><b>${p.c}</b>/${st.total}</span></div>`).join("");
-    for(let n=1;n<=9;n++){
-      const left=9-[...st.grid].filter(c=>c==n).length;
-      $("p"+n).disabled=left<=0||st.won;
-      $("p"+n).querySelector("small").textContent=left>0?left:"";
-    }
-    $("bn").classList.toggle("on",notesMode);
-    $("msg").textContent=st.won?"🎉 Geschafft! Ihr habt es zusammen gelöst.":"";
+    st.grid=st.grid.slice(0,cell)+n+st.grid.slice(cell+1);st.owner[cell]=st.me;
+    st.notes[cell]=0;PEERS[cell].forEach(j=>st.notes[j]&=~(1<<n));
+    draw();
+    const j=await call(`/move?cell=${cell}&val=${n}`,"POST");
+    if(j.wrong)flashIt();
   }
-  function pick(i){sel=i;draw()}
-  function toggleNotes(){notesMode=!notesMode;draw()}
-  async function put(n){
-    if(!st||st.won||sel<0||st.puzzle[sel]!="0"||st.grid[sel]!="0")return;
-    const cell=sel;
-    await call(`/${notesMode?"note":"move"}?cell=${cell}&val=${n}`,"POST");
-    if(st.wrong){flash={cell,val:n,until:Date.now()+700};draw();setTimeout(draw,750)}
-  }
-  async function erase(){if(sel>=0&&st&&st.grid[sel]=="0")await call(`/erase?cell=${sel}`,"POST")}
-  async function restart(){if(confirm("Neues Rätsel im selben Raum starten?"))await call("/restart","POST")}
-  function copyLink(){navigator.clipboard.writeText(location.href);$("cp").textContent="Kopiert ✓";setTimeout(()=>$("cp").textContent="Kopieren",1500)}
-  document.addEventListener("keydown",e=>{
-    if(!st||e.target.tagName=="INPUT")return;
-    if(e.key>="1"&&e.key<="9")put(+e.key);
-    else if(e.key=="n"||e.key=="N")toggleNotes();
-    else if(e.key=="Backspace"||e.key=="Delete")erase();
-    const m={ArrowLeft:-1,ArrowRight:1,ArrowUp:-9,ArrowDown:9}[e.key];
-    if(m!==undefined){e.preventDefault();if(sel<0)sel=0;const n=sel+m;
-      if(n>=0&&n<81&&!(m==1&&sel%9==8)&&!(m==-1&&sel%9==0)){sel=n;draw()}}
-  });
-  function tick(){if(!st)return;let ms=st.elapsed+(st.won?0:Date.now()-recv);const s=Math.floor(ms/1000);
-    $("time").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
-  async function poll(){if(busy)return;busy=true;try{await call("")}catch(e){}busy=false}
-  if(room){
-    if(!localStorage.name)localStorage.name="Spieler"+Math.floor(Math.random()*900+100);
-    $("menu").hidden=true;$("game").hidden=false;
-    poll();setInterval(poll,600);setInterval(tick,500);
-  }
+}
+async function erase(){
+  if(!st)return;const t=targets();if(!t.length)return;
+  t.forEach(i=>st.notes[i]=0);draw();
+  await call(`/erase?cells=${t.join(",")}`,"POST");
+}
+async function restart(){if(confirm("Neues Rätsel im selben Raum starten?"))await call("/restart","POST")}
+function copyLink(){navigator.clipboard.writeText(location.href);$("cp").textContent="Kopiert ✓";setTimeout(()=>$("cp").textContent="Kopieren",1500)}
+document.addEventListener("keydown",e=>{
+  if(!st||e.target.tagName=="INPUT")return;
+  if(e.key>="1"&&e.key<="9")put(+e.key);
+  else if(e.key=="n"||e.key=="N")toggleNotes();
+  else if(e.key=="Backspace"||e.key=="Delete")erase();
+  else if(e.key=="Escape"){sels=new Set(sel>=0?[sel]:[]);draw()}
+  const m={ArrowLeft:-1,ArrowRight:1,ArrowUp:-9,ArrowDown:9}[e.key];
+  if(m!==undefined){e.preventDefault();if(sel<0)sel=0;const n=sel+m;
+    if(n>=0&&n<81&&!(m==1&&sel%9==8)&&!(m==-1&&sel%9==0)){
+      if(e.shiftKey)sels.add(n);else sels=new Set([n]);
+      sel=n;draw()}}
+});
+function tick(){if(!st)return;let ms=st.elapsed+(st.won?0:Date.now()-recv);const s=Math.floor(ms/1000);
+  $("time").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+async function poll(){if(busy)return;busy=true;try{await call("")}catch(e){}busy=false}
+if(room){
+  if(!localStorage.name)localStorage.name="Spieler"+Math.floor(Math.random()*900+100);
+  $("menu").hidden=true;$("game").hidden=false;
+  poll();setInterval(poll,350);setInterval(tick,500);
+}
 </script></body></html>
