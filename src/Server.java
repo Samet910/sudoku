@@ -45,18 +45,18 @@ public class Server {
             long now = System.currentTimeMillis();
             StringBuilder s = new StringBuilder("{");
             s.append("\"id\":\"").append(id).append("\",\"diff\":\"").append(diff).append("\",\"shared\":").append(shared)
-                    .append(",\"puzzle\":\"").append(puzzle).append("\",\"grid\":\"").append(new String(grid))
-                    .append("\",\"mistakes\":").append(mistakes).append(",\"won\":").append(won).append(",\"wrong\":").append(wrong)
-                    .append(",\"total\":").append(total).append(",\"elapsed\":").append((won ? end : now) - start)
-                    .append(",\"owner\":").append(Arrays.toString(owner))
-                    .append(",\"notes\":").append(Arrays.toString(notesFor(pid)));
+             .append(",\"puzzle\":\"").append(puzzle).append("\",\"grid\":\"").append(new String(grid))
+             .append("\",\"mistakes\":").append(mistakes).append(",\"won\":").append(won).append(",\"wrong\":").append(wrong)
+             .append(",\"total\":").append(total).append(",\"elapsed\":").append((won ? end : now) - start)
+             .append(",\"owner\":").append(Arrays.toString(owner))
+             .append(",\"notes\":").append(Arrays.toString(notesFor(pid)));
             Player me = players.get(pid);
             s.append(",\"me\":").append(me == null ? -1 : me.slot).append(",\"players\":[");
             boolean first = true;
             for (Player p : players.values()) if (now - p.last < 10000) {
                 if (!first) s.append(','); first = false;
                 s.append("{\"n\":\"").append(p.name).append("\",\"s\":").append(p.slot).append(",\"sel\":").append(p.sel)
-                        .append(",\"c\":").append(p.count).append("}");
+                 .append(",\"c\":").append(p.count).append("}");
             }
             return s.append("]}").toString();
         }
@@ -154,6 +154,17 @@ public class Server {
         return m;
     }
 
+    static List<Integer> cells(Map<String, String> q, int single) {
+        List<Integer> l = new ArrayList<>();
+        String cs = q.get("cells");
+        if (cs != null) {
+            for (String x : cs.split(",")) {
+                try { int c = Integer.parseInt(x.trim()); if (c >= 0 && c < 81 && !l.contains(c)) l.add(c); } catch (Exception e) { }
+            }
+        } else if (single >= 0 && single < 81) l.add(single);
+        return l;
+    }
+
     static void api(HttpExchange ex) throws IOException {
         String[] parts = ex.getRequestURI().getPath().split("/"); // "", "api", ...
         Map<String, String> q = query(ex);
@@ -204,10 +215,16 @@ public class Server {
                                 }
                             }
                             case "note" -> {
-                                if (cellOk && val >= 1 && val <= 9 && !r.won && r.grid[cell] == '0') r.notesFor(pid)[cell] ^= 1 << val;
+                                if (val >= 1 && val <= 9 && !r.won) for (int c : cells(q, cell)) if (r.grid[c] == '0') {
+                                    int[] n = r.notesFor(pid);
+                                    String on = q.get("on");
+                                    if (on == null) n[c] ^= 1 << val;
+                                    else if (on.equals("1")) n[c] |= 1 << val;
+                                    else n[c] &= ~(1 << val);
+                                }
                             }
                             case "erase" -> {
-                                if (cellOk && r.grid[cell] == '0') r.notesFor(pid)[cell] = 0;
+                                for (int c : cells(q, cell)) if (r.grid[c] == '0') r.notesFor(pid)[c] = 0;
                             }
                             case "restart" -> r.reset();
                             default -> { }
@@ -229,7 +246,7 @@ public class Server {
         s.createContext("/api/", Server::api);
         s.createContext("/", ex -> send(ex, 200, "text/html", Files.readAllBytes(Path.of("public/index.html"))));
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() ->
-                rooms.values().removeIf(r -> System.currentTimeMillis() - r.last > 24 * 3600_000L), 1, 1, TimeUnit.HOURS);
+            rooms.values().removeIf(r -> System.currentTimeMillis() - r.last > 24 * 3600_000L), 1, 1, TimeUnit.HOURS);
         s.start();
         System.out.println("Sudoku läuft auf Port " + port);
     }
